@@ -8,9 +8,7 @@
   },
   "dependencies": {
     "director": "",
-    "cool-ascii-faces": "~1.3.x",
-    "googleapis",
-    "google-auth-library"
+    "cool-ascii-faces": "~1.3.x"
   },
   "engines": {
     "node": "0.10.x"
