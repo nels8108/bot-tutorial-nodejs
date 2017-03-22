@@ -1,12 +1,3 @@
-var HTTPS = require('https');
-var cool = require('cool-ascii-faces');
-//var calendar = require('./quickstart.js');
-
-var newEvents = '';
-
-var botID = process.env.BOT_ID;
-var botID2 = '0729da2632bf66af669a0f798f'
-
 
 
 var fs = require('fs');
@@ -66,7 +57,7 @@ function authorize(credentials, callback) {
  * @param {getEventsCallback} callback The callback to call with the authorized
  *     client.
  */
-/* function getNewToken(oauth2Client, callback) {
+function getNewToken(oauth2Client, callback) {
   var authUrl = oauth2Client.generateAuthUrl({
     access_type: 'offline',
     scope: SCOPES
@@ -88,14 +79,14 @@ function authorize(credentials, callback) {
       callback(oauth2Client);
     });
   });
-} */
+}
 
 /**
  * Store token to disk be used in later program executions.
  *
  * @param {Object} token The token to store to disk.
  */
-/* function storeToken(token) {
+function storeToken(token) {
   try {
     fs.mkdirSync(TOKEN_DIR);
   } catch (err) {
@@ -105,7 +96,7 @@ function authorize(credentials, callback) {
   }
   fs.writeFile(TOKEN_PATH, JSON.stringify(token));
   console.log('Token stored to ' + TOKEN_PATH);
-} */
+}
 
 /**
  * Lists the next 10 events on the user's primary calendar.
@@ -135,84 +126,10 @@ function listEvents(auth) {
       for (var i = 0; i < events.length; i++) {
         var event = events[i];
         var start = event.start.dateTime || event.start.date;
-		newEvents = returnString.concat(newEvents, '\n', String(start), ' - ' , String(event.summary));
-		/* console.log(newEvents);
-		newEvents = returnString;
-		returnString = String(start);
-		console.log(returnString);
+		returnString.concat(returnString, start, ' - ', event.summary, '\n')
         console.log('%s - %s', start, event.summary);
-		returnString = String(event.summary);
-		console.log(returnString);  */
       }
     }
   });
+  return returnString;
 }
-
-
-function respond() {
-  var request = JSON.parse(this.req.chunks[0]);
-  var calRegex = /^\/calendar$/;
-  var swoleRegex = /^\/swole$/;
-  var swole = 1;
-  var cal = 2;
-  if(request.text && calRegex.test(request.text)) {
-    this.res.writeHead(200);
-    postMessage(cal);
-    this.res.end();
-  } else if(request.text && swoleRegex.test(request.text)) {
-	this.res.writeHead(200);
-    postMessage(swole);
-    this.res.end();
-  } else {
-    console.log("don't care");
-    this.res.writeHead(200);
-    this.res.end();
-  }
-}
-
-function postMessage(command) {
-  var botResponse, options, body, botReq;
-  if(command == 1){
-	  botResponse = 'Lookin Thicc';
-  } else {
-	  botResponse = newEvents;
-  }
-  //botResponse = cool();
-  //console.log(botResponse);
-  //console.log(newEvents);
-  
-
-  options = {
-    hostname: 'api.groupme.com',
-    path: '/v3/bots/post',
-    method: 'POST'
-  };
-
-  body = {
-    "bot_id" : botID2,
-    "text" : botResponse
-  };
-
-  console.log('sending ' + botResponse + ' to ' + botID2);
-
-  botReq = HTTPS.request(options, function(res) {
-      if(res.statusCode == 202) {
-        //neat
-      } else {
-        console.log('rejecting bad status code ' + res.statusCode);
-      }
-  });
-
-  botReq.on('error', function(err) {
-    console.log('error posting message '  + JSON.stringify(err));
-  });
-  botReq.on('timeout', function(err) {
-    console.log('timeout posting message '  + JSON.stringify(err));
-  });
-  botReq.end(JSON.stringify(body));
-}
-
-
-exports.respond = respond;
-
-

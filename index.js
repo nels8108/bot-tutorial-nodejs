@@ -1,9 +1,10 @@
-var http, director, cool, bot, router, server, port;
+var http, director, cool, bot, router, server, port, calendar;
 
 http        = require('http');
 director    = require('director');
 cool        = require('cool-ascii-faces');
 bot         = require('./bot.js');
+//calendar	= require('./quickstart.js');
 
 router = new director.http.Router({
   '/' : {
