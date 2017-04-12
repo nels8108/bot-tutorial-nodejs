@@ -1,7 +1,8 @@
 var HTTPS = require('https');
 var cool = require('cool-ascii-faces');
+var HTTP = require('http');
 //var calendar = require('./quickstart.js');
-
+var dailyQuote;
 var newEvents = '';
 
 var botID = process.env.BOT_ID;
@@ -147,7 +148,7 @@ function listEvents(auth) {
     }
   });
 }
-
+// ------------------- bot stuff ----------------------
 
 function respond() {
   var request = JSON.parse(this.req.chunks[0]);
@@ -170,12 +171,53 @@ function respond() {
   }
 }
 
+function getQuoteAndSend(){
+  HTTP.get('http://api.forismatic.com/api/1.0/?lang=en&format=text&method=getQuote', (res) => {
+  const statusCode = res.statusCode;
+  const contentType = res.headers['content-type'];
+
+  let error;
+  if (statusCode !== 200) {
+    error = new Error(`Request Failed.\n` +
+                      `Status Code: ${statusCode}`);
+  } /*else if (!/^application\/json/.test(contentType)) {
+    error = new Error(`Invalid content-type.\n` +
+                      `Expected application/json but received ${contentType}`);
+  }*/
+  if (error) {
+    console.log(error.message);
+    // consume response data to free up memory
+    res.resume();
+    return;
+  }
+
+  res.setEncoding('utf8');
+  let rawData = '';
+  res.on('data', (chunk) => rawData += chunk);
+  res.on('end', () => {
+    try {
+      dailyQuote = rawData;
+      console.log(dailyQuote);
+    } catch (e) {
+      console.log(e.message);
+    }
+  });
+}).on('error', (e) => {
+  console.log(`Got error: ${e.message}`);
+});
+
+postMessage(3);
+
+}
+
 function postMessage(command) {
   var botResponse, options, body, botReq;
   if(command == 1){
 	  botResponse = 'Lookin Thicc';
-  } else {
+  } else if(command == 2){
 	  botResponse = newEvents;
+  } else if(command == 3) {
+    botResponse = dailyQuote;
   }
   //botResponse = cool();
   //console.log(botResponse);
